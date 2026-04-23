@@ -9,6 +9,7 @@
 
     <p>Suhu: <span id="suhu">Loading...</span> °C</p>
     <p>Kelembaban: <span id="kelembaban">Loading...</span> %</p>
+    <p>Lampu: <span id="lampu">Loading...</span> </p>
 
     <script>
         const url = "https://sensordht11-c9561-default-rtdb.asia-southeast1.firebasedatabase.app/DHT11.json";
@@ -21,6 +22,7 @@
 
                     document.getElementById("suhu").innerText = data.suhu;
                     document.getElementById("kelembaban").innerText = data.kelembaban;
+                    document.getElementById("lampu").innerText = data.lampu;
                 })
                 .catch(err => {
                     console.error("Error:", err);
