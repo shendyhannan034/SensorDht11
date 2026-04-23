@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>Monitoring DHT11</title>
+</head>
+<body>
+
+    <h1>Monitoring Sensor DHT11</h1>
+
+    <h2>Suhu: <span id="suhu">--</span> °C</h2>
+    <h2>Kelembaban: <span id="kelembaban">--</span> %</h2>
+
+    <!-- Firebase SDK -->
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+    <script>
+        // 🔥 CONFIG FIREBASE
+        const firebaseConfig = {
+            apiKey: "AIzaSyBsnvPLoYpRG1nox0TtN2BwJXKyqx67drg",
+            databaseURL: "https://sensordht11-c9561-default-rtdb.asia-southeast1.firebasedatabase.app/"
+        };
+
+        // Init Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        // 🔥 Ambil data dari Firebase
+        db.ref("DHT11").limitToLast(1).on("value", (snapshot) => {
+            snapshot.forEach((child) => {
+                let data = child.val();
+
+                document.getElementById("suhu").innerText = data.suhu;
+                document.getElementById("kelembaban").innerText = data.kelembaban;
+            });
+        });
+    </script>
+
+</body>
+</html>
