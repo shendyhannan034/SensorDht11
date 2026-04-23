@@ -1,42 +1,37 @@
 <!DOCTYPE html>
-
 <html>
 <head>
-    <title>Monitoring DHT11</title>
+    <title>Monitoring Sensor DHT11</title>
 </head>
 <body>
 
     <h1>Monitoring Sensor DHT11</h1>
 
-    <h2>Suhu: <span id="suhu">--</span> °C</h2>
-    <h2>Kelembaban: <span id="kelembaban">--</span> %</h2>
-
-    <!-- Firebase SDK -->
-
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <p>Suhu: <span id="suhu">Loading...</span> °C</p>
+    <p>Kelembaban: <span id="kelembaban">Loading...</span> %</p>
 
     <script>
-        // 🔥 CONFIG FIREBASE
-        const firebaseConfig = {
-            apiKey: "AIzaSyBsnvPLoYpRG1nox0TtN2BwJXKyqx67drg",
-            databaseURL: "https://sensordht11-c9561-default-rtdb.asia-southeast1.firebasedatabase.app/"
-        };
+        const url = "https://sensordht11-c9561-default-rtdb.asia-southeast1.firebasedatabase.app/DHT11.json";
 
-        // Init Firebase
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
+        function ambilData() {
+            fetch(url)
+                .then(res => res.json())
+                .then(data => {
+                    console.log(data); // debug
 
-        // 🔥 Ambil data dari Firebase
-        db.ref("DHT11").limitToLast(1).on("value", (snapshot) => {
-            snapshot.forEach((child) => {
-                let data = child.val();
+                    document.getElementById("suhu").innerText = data.suhu;
+                    document.getElementById("kelembaban").innerText = data.kelembaban;
+                })
+                .catch(err => {
+                    console.error("Error:", err);
+                });
+        }
 
-                document.getElementById("suhu").innerText = data.suhu;
-                document.getElementById("kelembaban").innerText = data.kelembaban;
-            });
-        });
+        // refresh tiap 2 detik
+        setInterval(ambilData, 2000);
+
+        // load pertama
+        ambilData();
     </script>
 
 </body>
