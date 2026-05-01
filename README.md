@@ -325,6 +325,10 @@
 
             document.querySelectorAll(".menu-item").forEach(m => m.classList.remove("active"));
             el.classList.add("active");
+
+            if (page === "riwayat") {
+                modeRiwayat = "harian";
+            }
         }
         // ================= GRAFIK ===================
         let dataSuhu = [];
@@ -337,6 +341,7 @@
         let lastData = "";
         let lastSuhu = null;
         let lastKelembapan = null;
+        let modeRiwayat = "harian";
 
         const ctx = document.getElementById("suhuChart").getContext("2d");
 
@@ -482,6 +487,7 @@
 
         // ================= RIWAYAT HARI =================
         function ambilHistory() {
+            if (modeRiwayat === "detail") return;
             fetch(urlHistory)
                 .then(res => res.json())
                 .then(data => {
@@ -539,14 +545,24 @@
                 });
         }
 
+        function kembaliRiwayat() {
+            modeRiwayat = "harian"; // balik ke mode awal
+            ambilHistory(); // reload data
+        }
+
         // ================= DETAIL JAM =================
         function showDetail(tanggal) {
 
             let data = window.historyData[tanggal];
             let table = document.getElementById("table");
 
+            modeRiwayat = "detail";
             table.innerHTML = `
-            <tr><td colspan="3"><button onclick="ambilHistory()">⬅ Kembali</button></td></tr>
+                <tr>
+                <td colspan="3">
+                <button onclick="kembaliRiwayat()">⬅ Kembali</button>
+                </td>
+                </tr>
             `;
 
             // 🔥 HITUNG RATA-RATA PER JAM (dari data menit)
