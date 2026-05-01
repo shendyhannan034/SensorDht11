@@ -13,6 +13,7 @@
             display: flex;
         }
 
+        /* SIDEBAR  */
         .sidebar {
             width: 220px;
             background: #292929;
@@ -24,7 +25,8 @@
             .sidebar h1 {
                 color: #ffffff;
             }
-
+        
+        /*  TAMPILAN ITEM   */
         .menu-item {
             padding: 12px;
             margin: 10px 0;
@@ -43,13 +45,29 @@
                 color: #f9f9f9;
             }
 
+        /*  TAMPILAN KESELURUHAN */
         .main {
             flex: 1;
             padding: 50px;
-            background-image: url("img.jpeg");
+            padding-top: 140px;
+            background-image: url("img5.jpg");
             background-size: cover;
+            background-position: center;
+            max-width: 1920px;
         }
 
+        /*  BACKGROUND GRAFIK   */
+        canvas {
+            background: rgba(0,0,0,0.4);
+            border-radius: 15px;
+            padding: 10px;
+        }
+
+        .judul-grafik {
+            margin-top: -20px;
+        }
+
+        /*  PAGE    */
         .page {
             display: none;
             color: #000000;
@@ -59,17 +77,158 @@
                 display: block;
             }
 
-        .card {
-            background: rgba(200,0,0,0.5);
-            backdrop-filter: blur(10px);
-            border-radius: 30px;
-            padding: 40px;
-            margin: 20px;
-            display: inline-block;
-            width: 200px;
-            text-align: center;
-            font-size: 25px;
+        /*  POSISI TANGGAL & STATUS   */
+        .top-right {
+            position: absolute;
+            top: 20px;
+            right: 30px;
         }
+
+        .datetime-box {
+            background: rgba(20, 40, 80, 0.8);
+            padding: 15px 20px;
+            border-radius: 15px;
+            color: white;
+            width: 250px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
+
+        .date {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .time {
+            font-size: 22px;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        /* STATUS SISTEM */
+        .status-box {
+            margin-top: 12px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .dot {
+            height: 10px;
+            width: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+
+        .online {
+            background-color: #00ff88;
+        }
+
+        .offline {
+            background-color: red;
+        }
+
+        .status-text {
+            font-weight: bold;
+        }
+
+        .status-desc {
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        /*  CARD    */
+        .card-container {
+            display: flex;
+            gap: 20px;
+        }
+
+        .card {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 20px;
+            border-radius: 20px;
+            width: 280px;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px);
+            color: white;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+        }
+        /*  ICON CARD   */
+        .icon {
+            font-size: 40px;
+        }
+
+        /* TEXT CARD */
+        .info h3 {
+            margin: 0;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .info h1 {
+            margin: 5px 0;
+            font-size: 28px;
+        }
+
+        .info p {
+            margin: 0;
+            font-size: 12px;
+            color: lightgreen;
+        }
+
+        /*  WARNA CARD    */
+        .suhu-card {
+            border-left: 5px solid red;
+            background: linear-gradient(135deg, rgba(255,0,0,0.4), rgba(0,0,0,0.6));
+        }
+
+        .kelembapan-card {
+            border-left: 5px solid cyan;
+            background: linear-gradient(135deg, rgba(0,150,255,0.4), rgba(0,0,0,0.6));
+        }
+
+        /*  TABEL   */
+        .tabel-riwayat {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 40px;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(5px);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .tabel-riwayat {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 40px;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(5px);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+            .tabel-riwayat th {
+                background: rgba(0,0,0,0.6);
+                color: white;
+                padding: 12px;
+            }
+
+            .tabel-riwayat td {
+                padding: 10px;
+                text-align: center;
+                color: black;
+            }
+
+            .tabel-riwayat tr:nth-child(even) {
+                background: rgba(255,255,255,0.1);
+            }
+
+            .tabel-riwayat tr:hover {
+                background: rgba(255,255,255,0.2);
+            }
     </style>
 </head>
 
@@ -83,28 +242,62 @@
     </div>
 
     <div class="main">
+        <div class="top-right">
+            <div class="datetime-box">
+                <div class="date">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span id="tanggal">Jumat, 1 Mei 2026</span>
+                </div>
+                <div class="time" id="jam">23:39:32</div>
 
+                <!-- STATUS SISTEM -->
+                <div class="status-box">
+                    <span class="dot online"></span>
+                    <span class="status-text">Online</span>
+                    <div class="status-desc">Terhubung ke Firebase</div>
+                </div>
+            </div>
+        </div>
         <!-- DASHBOARD -->
         <div id="dashboard" class="page active">
-            <h2>Data Real-Time</h2>
-            <p class="card">Suhu<br><span id="suhu">Loading...</span> °C</p>
-            <p class="card">Kelembapan<br><span id="kelembapan">Loading...</span></p>
+            <h2 class="judul-grafik">Data Real-Time</h2>
+            <div class="card-container">
+
+                <div class="card suhu-card">
+                    <div class="icon">🌡️</div>
+                    <div class="info">
+                        <h3>SUHU</h3>
+                        <h1 id="suhu">--</h1>
+                        <p>Normal</p>
+                    </div>
+                </div>
+
+                <div class="card kelembapan-card">
+                    <div class="icon">💧</div>
+                    <div class="info">
+                        <h3>KELEMBAPAN</h3>
+                        <h1 id="kelembapan">--</h1>
+                        <p>Normal</p>
+                    </div>
+                </div>
+
+            </div>
         </div>
 
         <!-- GRAFIK -->
         <div id="grafik" class="page">
-            <h2>Grafik Suhu</h2>
+            <h2 class="judul-grafik">Grafik Suhu</h2>
             <canvas id="suhuChart"></canvas>
 
-            <h3>Grafik Kelembapan</h3>
+            <h2>Grafik Kelembapan</h2>
             <canvas id="kelembapanChart"></canvas>
         </div>
 
         <!-- RIWAYAT -->
         <div id="riwayat" class="page">
-            <h2>Riwayat Data</h2>
+            <h2 class="judul-grafik">Riwayat Data</h2>
 
-            <table border="1" width="100%">
+            <table class="tabel-riwayat">
                 <thead>
                     <tr>
                         <th>Tanggal / Jam</th>
@@ -131,16 +324,135 @@
             document.querySelectorAll(".menu-item").forEach(m => m.classList.remove("active"));
             el.classList.add("active");
         }
+        // ================= GRAFIK ===================
+        let dataSuhu = [];
+        let dataKelembapan = [];
+        let labelWaktu = [];
+
+        const ctx = document.getElementById("suhuChart").getContext("2d");
+
+        // 🔥 gradient area
+        const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+        gradient.addColorStop(0, "rgba(255, 0, 0, 0.6)");
+        gradient.addColorStop(1, "rgba(255, 0, 0, 0.05)");
+
+        const suhuChart = new Chart(document.getElementById("suhuChart"), {
+            type: "line",
+            data: {
+                labels: labelWaktu,
+                datasets: [{
+                    label: "Suhu (°C)",
+                    data: dataSuhu,
+
+                    borderColor: "red",
+                    backgroundColor: gradient,
+
+                    fill: true,
+
+                    tension: 0.4, // 🔥 smooth line
+
+                    pointRadius: 4,
+                    pointBackgroundColor: "red",
+                    pointBorderWidth: 2,
+                    pointBorderColor: "#fff"
+                }]
+            },
+
+            options: {
+                responsive: true,
+
+                animation: {
+                    duration: 1000,
+                    easing: "easeInOutQuart"
+                },
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: "white"
+                        }
+                    }
+                },
+
+                scales: {
+                    x: {
+                        ticks: { color: "white" },
+                        grid: { color: "rgba(255,255,255,0.1)" }
+                    },
+                    y: {
+                        ticks: { color: "white" },
+                        grid: { color: "rgba(255,255,255,0.1)" }
+                    }
+                }
+            }
+         });
+            // 🔥 KELEMBAPAN CHART
+            const ctxKelembapan = document.getElementById("kelembapanChart").getContext("2d");
+
+            const gradientKelembapan = ctxKelembapan.createLinearGradient(0, 0, 0, 300);
+            gradientKelembapan.addColorStop(0, "rgba(0,150,255,0.6)");
+            gradientKelembapan.addColorStop(1, "rgba(0,150,255,0.05)");
+
+            const kelembapanChart = new Chart(ctxKelembapan, {
+                type: "line",
+                data: {
+                    labels: labelWaktu,
+                    datasets: [{
+                        label: "Kelembapan (%)",
+                        data: dataKelembapan,
+                        borderColor: "blue",
+                        backgroundColor: gradientKelembapan,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 4,
+                        pointBackgroundColor: "blue",
+                        pointBorderColor: "#fff"
+                    }]
+                },
+                options: {
+                    responsive: true,
+
+                    animation: {
+                        duration: 1000,
+                        easing: "easeInOutQuart"
+                    },
+
+                    plugins: {
+                        legend: { labels: { color: "white" } }
+                    },
+                    scales: {
+                        x: { ticks: { color: "white" } },
+                        y: { ticks: { color: "white" } }
+                    }
+                }
+            });
+
 
         // ================= REALTIME =================
         function ambilLive() {
             fetch(urlLive + "?t=" + Date.now())
                 .then(res => res.json())
                 .then(data => {
+
                     if (!data) return;
 
-                    document.getElementById("suhu").innerText = data.suhu + " °C";
+                    document.getElementById("suhu").innerText = data.suhu;
                     document.getElementById("kelembapan").innerText = data.kelembapan + " %";
+
+                    let waktu = new Date().toLocaleTimeString();
+
+                    labelWaktu.push(waktu);
+                    dataSuhu.push(data.suhu);
+                    dataKelembapan.push(data.kelembapan);
+
+                    // batasi data (biar tidak berat)
+                    if (labelWaktu.length > 10) {
+                        labelWaktu.shift();
+                        dataSuhu.shift();
+                        dataKelembapan.shift();
+                    }
+
+                    suhuChart.update();
+                    kelembapanChart.update();
                 });
         }
 
@@ -190,12 +502,12 @@
                         let avgKelembapan = (totalKelembapan / jumlahJam).toFixed(1);
 
                         let row = `
-<tr>
-<td style="cursor:pointer;color:blue;" onclick="showDetail('${tanggal}')">${tanggal}</td>
-<td>${avgSuhu}</td>
-<td>${avgKelembapan}</td>
-</tr>
-`;
+                        <tr>
+                        <td style="cursor:pointer;color:blue;" onclick="showDetail('${tanggal}')">${tanggal}</td>
+                        <td>${avgSuhu}</td>
+                        <td>${avgKelembapan}</td>
+                        </tr>
+                        `;
 
                         table.innerHTML += row;
 
@@ -210,8 +522,8 @@
             let table = document.getElementById("table");
 
             table.innerHTML = `
-<tr><td colspan="3"><button onclick="ambilHistory()">⬅ Kembali</button></td></tr>
-`;
+            <tr><td colspan="3"><button onclick="ambilHistory()">⬅ Kembali</button></td></tr>
+            `;
 
             // 🔥 HITUNG RATA-RATA PER JAM (dari data menit)
             let perJam = {};
@@ -235,23 +547,64 @@
                 let avgKelembapan = (perJam[jam].kelembapan / perJam[jam].count).toFixed(1);
 
                 let row = `
-<tr>
-<td>${jam}:00</td>
-<td>${avgSuhu}</td>
-<td>${avgKelembapan}</td>
-</tr>
-`;
+                <tr>
+                <td>${jam}:00</td>
+                <td>${avgSuhu}</td>
+                <td>${avgKelembapan}</td>
+                </tr>
+                `;
 
                 table.innerHTML += row;
             });
         }
+        function updateJam() {
+            let now = new Date();
 
-        // ================= LOOP =================
+            let tanggal = now.toLocaleDateString("id-ID", {
+                weekday: "long",
+                year: "numeric",
+                month: "long",
+                day: "numeric"
+            });
+
+            let jam = now.toLocaleTimeString("id-ID");
+
+            document.getElementById("tanggal").innerHTML = tanggal;
+            document.getElementById("jam").innerHTML = jam;
+        }
+
+        // STATUS FIREBASE
+        let isOnline = true;
+
+        function updateStatus() {
+            const dot = document.querySelector(".dot");
+            const text = document.querySelector(".status-text");
+            const desc = document.querySelector(".status-desc");
+
+            if (isOnline) {
+                dot.classList.add("online");
+                dot.classList.remove("offline");
+                text.innerHTML = "Online";
+                desc.innerHTML = "Terhubung ke Firebase";
+            } else {
+                dot.classList.add("offline");
+                dot.classList.remove("online");
+                text.innerHTML = "Offline";
+                desc.innerHTML = "Tidak terhubung";
+            }
+        }
+
+        // 🔥 PENTING: PANGGIL SEMUA
+        setInterval(updateJam, 1000);
+        updateJam();
+        updateStatus();
+
         setInterval(ambilLive, 3000);
         setInterval(ambilHistory, 10000);
 
         ambilLive();
         ambilHistory();
+
 
     </script>
 
