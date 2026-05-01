@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="id">
 <head>
     <meta charset="UTF-8">
@@ -14,7 +13,6 @@
             display: flex;
         }
 
-        /* SIDEBAR */
         .sidebar {
             width: 220px;
             background: #292929;
@@ -27,14 +25,12 @@
                 color: #ffffff;
             }
 
-        /* MENU */
         .menu-item {
             padding: 12px;
             margin: 10px 0;
             background: #969696;
             border-radius: 10px;
             cursor: pointer;
-            transition: 0.3s;
         }
 
             .menu-item:hover {
@@ -47,17 +43,13 @@
                 color: #f9f9f9;
             }
 
-        /* MAIN */
         .main {
             flex: 1;
             padding: 50px;
             background-image: url("img.jpeg");
             background-size: cover;
-            background-repeat: no-repeat;
-            background-position: center;
         }
 
-        /* PAGE */
         .page {
             display: none;
             color: #000000;
@@ -67,86 +59,64 @@
                 display: block;
             }
 
-        /* CARD */
         .card {
             background: rgba(200,0,0,0.5);
             backdrop-filter: blur(10px);
-            border-radius: 20px;
+            border-radius: 30px;
             padding: 40px;
             margin: 20px;
-            border-radius: 30px;
             display: inline-block;
             width: 200px;
             text-align: center;
             font-size: 25px;
-            color: #121212;
         }
     </style>
-
 </head>
 
 <body>
 
-    <!-- SIDEBAR -->
-
     <div class="sidebar">
         <h1>DASHBOARD</h1>
-
         <div class="menu-item active" onclick="showPage('dashboard', this)">Data Real-Time</div>
         <div class="menu-item" onclick="showPage('grafik', this)">Grafik</div>
         <div class="menu-item" onclick="showPage('riwayat', this)">Riwayat</div>
     </div>
 
-    <!-- MAIN -->
-
     <div class="main">
 
         <!-- DASHBOARD -->
-
         <div id="dashboard" class="page active">
             <h2>Data Real-Time</h2>
-
             <p class="card">Suhu<br><span id="suhu">Loading...</span> °C</p>
             <p class="card">Kelembapan<br><span id="kelembapan">Loading...</span></p>
-
-
         </div>
 
         <!-- GRAFIK -->
-
         <div id="grafik" class="page">
             <h2>Grafik Suhu</h2>
             <canvas id="suhuChart"></canvas>
 
             <h3>Grafik Kelembapan</h3>
             <canvas id="kelembapanChart"></canvas>
-
         </div>
 
         <!-- RIWAYAT -->
-
         <div id="riwayat" class="page">
             <h2>Riwayat Data</h2>
-
 
             <table border="1" width="100%">
                 <thead>
                     <tr>
-                        <th>Tanggal & Waktu</th>
+                        <th>Tanggal / Jam</th>
                         <th>Suhu °C</th>
                         <th>Kelembapan</th>
                     </tr>
-
                 </thead>
                 <tbody id="table"></tbody>
             </table>
-
-
         </div>
 
     </div>
-
-
 
     <script>
 
@@ -162,68 +132,19 @@
             el.classList.add("active");
         }
 
-        // ================= GRAFIK =================
-        let dataSuhu = [];
-        let dataKelembapan = [];
-        let labelWaktu = [];
-
-        const suhuChart = new Chart(document.getElementById("suhuChart"), {
-            type: "line",
-            data: {
-                labels: labelWaktu,
-                datasets: [{
-                    label: "Suhu",
-                    data: dataSuhu,
-                    borderColor: "red",
-                    backgroundColor: "rgba(255,0,0,0.2)",
-                    fill: true
-                }]
-            }
-        });
-
-        const kelembapanChart = new Chart(document.getElementById("kelembapanChart"), {
-            type: "line",
-            data: {
-                labels: labelWaktu,
-                datasets: [{
-                    label: "Kelembapan",
-                    data: dataKelembapan,
-                    borderColor: "orange",
-                    backgroundColor: "rgba(0,255,0,0.2)",
-                    fill: true
-                }]
-            }
-        });
-
         // ================= REALTIME =================
         function ambilLive() {
-            fetch(urlLive)
+            fetch(urlLive + "?t=" + Date.now())
                 .then(res => res.json())
                 .then(data => {
-
                     if (!data) return;
 
-                    document.getElementById("suhu").innerText = data.suhu;
-                    document.getElementById("kelembapan").innerText = data.kelembapan;
-
-                    let time = new Date().toLocaleTimeString();
-
-                    labelWaktu.push(time);
-                    dataSuhu.push(data.suhu);
-                    dataKelembapan.push(data.kelembapan);
-
-                    if (labelWaktu.length > 10) {
-                        labelWaktu.shift();
-                        dataSuhu.shift();
-                        dataKelembapan.shift();
-                    }
-
-                    suhuChart.update();
-                    kelembapanChart.update();
+                    document.getElementById("suhu").innerText = data.suhu + " °C";
+                    document.getElementById("kelembapan").innerText = data.kelembapan + " %";
                 });
         }
 
-        // ================= HISTORY =================
+        // ================= RIWAYAT HARI =================
         function ambilHistory() {
             fetch(urlHistory)
                 .then(res => res.json())
@@ -232,35 +153,52 @@
                     if (!data) return;
 
                     window.historyData = data;
-
                     let table = document.getElementById("table");
                     table.innerHTML = "";
 
                     Object.keys(data).forEach(tanggal => {
 
                         let hariData = data[tanggal];
-                        let totalSuhu = 0;
-                        let totalKelembapan = 0;
-                        let count = 0;
 
-                        Object.keys(hariData).forEach(jam => {
-                            totalSuhu += hariData[jam].suhu;
-                            totalKelembapan += hariData[jam].kelembapan;
-                            count++;
+                        // 🔥 STEP 1: hitung rata-rata per JAM dulu
+                        let perJam = {};
+
+                        Object.keys(hariData).forEach(waktu => {
+                            let jam = waktu.substring(0, 2);
+
+                            if (!perJam[jam]) {
+                                perJam[jam] = { suhu: 0, kelembapan: 0, count: 0 };
+                            }
+
+                            perJam[jam].suhu += hariData[waktu].suhu;
+                            perJam[jam].kelembapan += hariData[waktu].kelembapan;
+                            perJam[jam].count++;
                         });
 
-                        let avgSuhu = (totalSuhu / count).toFixed(1);
-                        let avgKelembapan = (totalKelembapan / count).toFixed(1);
+                        // 🔥 STEP 2: rata-rata HARI dari rata-rata JAM
+                        let totalSuhu = 0;
+                        let totalKelembapan = 0;
+                        let jumlahJam = 0;
+
+                        Object.keys(perJam).forEach(jam => {
+                            totalSuhu += perJam[jam].suhu / perJam[jam].count;
+                            totalKelembapan += perJam[jam].kelembapan / perJam[jam].count;
+                            jumlahJam++;
+                        });
+
+                        let avgSuhu = (totalSuhu / jumlahJam).toFixed(1);
+                        let avgKelembapan = (totalKelembapan / jumlahJam).toFixed(1);
 
                         let row = `
-                        <tr>
-                            <td style="cursor:pointer;color:blue;" onclick="showDetail('${tanggal}')">${tanggal}</td>
-                            <td>${avgSuhu}</td>
-                            <td>${avgKelembapan}</td>
-                        </tr>
-                    `;
+<tr>
+<td style="cursor:pointer;color:blue;" onclick="showDetail('${tanggal}')">${tanggal}</td>
+<td>${avgSuhu}</td>
+<td>${avgKelembapan}</td>
+</tr>
+`;
 
                         table.innerHTML += row;
+
                     });
                 });
         }
@@ -272,24 +210,37 @@
             let table = document.getElementById("table");
 
             table.innerHTML = `
-            <tr>
-                <td colspan="3">
-                    <button onclick="ambilHistory()">⬅ Kembali</button>
-                </td>
-            </tr>
-        `;
+<tr><td colspan="3"><button onclick="ambilHistory()">⬅ Kembali</button></td></tr>
+`;
 
-            Object.keys(data).forEach(jam => {
+            // 🔥 HITUNG RATA-RATA PER JAM (dari data menit)
+            let perJam = {};
 
-                let item = data[jam];
+            Object.keys(data).forEach(waktu => {
+
+                let jam = waktu.substring(0, 2);
+
+                if (!perJam[jam]) {
+                    perJam[jam] = { suhu: 0, kelembapan: 0, count: 0 };
+                }
+
+                perJam[jam].suhu += data[waktu].suhu;
+                perJam[jam].kelembapan += data[waktu].kelembapan;
+                perJam[jam].count++;
+            });
+
+            Object.keys(perJam).sort().forEach(jam => {
+
+                let avgSuhu = (perJam[jam].suhu / perJam[jam].count).toFixed(1);
+                let avgKelembapan = (perJam[jam].kelembapan / perJam[jam].count).toFixed(1);
 
                 let row = `
-                <tr>
-                    <td>${jam}</td>
-                    <td>${item.suhu}</td>
-                    <td>${item.kelembapan}</td>
-                </tr>
-            `;
+<tr>
+<td>${jam}:00</td>
+<td>${avgSuhu}</td>
+<td>${avgKelembapan}</td>
+</tr>
+`;
 
                 table.innerHTML += row;
             });
