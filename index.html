@@ -50,8 +50,11 @@
         /* MAIN */
         .main {
             flex: 1;
-            padding: 20px;
-            background: #f9f9f9;
+            padding: 50px;
+            background-image: url("img.jpeg");
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
         }
 
         /* PAGE */
@@ -66,7 +69,9 @@
 
         /* CARD */
         .card {
-            background: #292929;
+            background: rgba(200,0,0,0.5);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
             padding: 40px;
             margin: 20px;
             border-radius: 30px;
@@ -74,7 +79,7 @@
             width: 200px;
             text-align: center;
             font-size: 25px;
-            color: yellow;
+            color: #121212;
         }
     </style>
 
@@ -87,7 +92,7 @@
     <div class="sidebar">
         <h1>DASHBOARD</h1>
 
-        <div class="menu-item active" onclick="showPage('dashboard', this)">Parameter</div>
+        <div class="menu-item active" onclick="showPage('dashboard', this)">Data Real-Time</div>
         <div class="menu-item" onclick="showPage('grafik', this)">Grafik</div>
         <div class="menu-item" onclick="showPage('riwayat', this)">Riwayat</div>
     </div>
@@ -99,7 +104,7 @@
         <!-- DASHBOARD -->
 
         <div id="dashboard" class="page active">
-            <h2>Parameter</h2>
+            <h2>Data Real-Time</h2>
 
             <p class="card">Suhu<br><span id="suhu">Loading...</span> °C</p>
             <p class="card">Kelembapan<br><span id="kelembapan">Loading...</span></p>
@@ -110,7 +115,7 @@
         <!-- GRAFIK -->
 
         <div id="grafik" class="page">
-            <h3>Grafik Suhu</h3>
+            <h2>Grafik Suhu</h2>
             <canvas id="suhuChart"></canvas>
 
             <h3>Grafik Kelembapan</h3>
@@ -142,13 +147,14 @@
     </div>
 
 
+
     <script>
 
-        const urlLive = "https://sensordht11-c9561-default-rtdb.asia-southeast1.firebasedatabase.app/DHT11/live.json";
-        const urlHistory = "https://sensordht11-c9561-default-rtdb.asia-southeast1.firebasedatabase.app/DHT11/history.json";
+        const urlLive = "https://sensordht11-c9561-default-rtdb.asia-southeast1.firebasedatabase.app/realtime.json";
+        const urlHistory = "https://sensordht11-c9561-default-rtdb.asia-southeast1.firebasedatabase.app/history.json";
+
         // ================= NAVIGASI =================
         function showPage(page, el) {
-
             document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
             document.getElementById(page).classList.add("active");
 
@@ -156,7 +162,7 @@
             el.classList.add("active");
         }
 
-        // ================= SIMULASI GRAFIK =================
+        // ================= GRAFIK =================
         let dataSuhu = [];
         let dataKelembapan = [];
         let labelWaktu = [];
@@ -168,7 +174,9 @@
                 datasets: [{
                     label: "Suhu",
                     data: dataSuhu,
-                    borderWidth: 2
+                    borderColor: "red",
+                    backgroundColor: "rgba(255,0,0,0.2)",
+                    fill: true
                 }]
             }
         });
@@ -180,12 +188,14 @@
                 datasets: [{
                     label: "Kelembapan",
                     data: dataKelembapan,
-                    borderWidth: 2
+                    borderColor: "orange",
+                    backgroundColor: "rgba(0,255,0,0.2)",
+                    fill: true
                 }]
             }
         });
 
-        // ================= SISTEM AMBIL DATA =================
+        // ================= REALTIME =================
         function ambilLive() {
             fetch(urlLive)
                 .then(res => res.json())
@@ -193,11 +203,9 @@
 
                     if (!data) return;
 
-                    // PARAMETER
                     document.getElementById("suhu").innerText = data.suhu;
                     document.getElementById("kelembapan").innerText = data.kelembapan;
 
-                    // GRAFIK
                     let time = new Date().toLocaleTimeString();
 
                     labelWaktu.push(time);
@@ -215,6 +223,7 @@
                 });
         }
 
+        // ================= HISTORY =================
         function ambilHistory() {
             fetch(urlHistory)
                 .then(res => res.json())
@@ -222,29 +231,77 @@
 
                     if (!data) return;
 
+                    window.historyData = data;
+
                     let table = document.getElementById("table");
                     table.innerHTML = "";
 
-                    Object.keys(data).sort().forEach(key => {
-                        let item = data[key];
+                    Object.keys(data).forEach(tanggal => {
+
+                        let hariData = data[tanggal];
+                        let totalSuhu = 0;
+                        let totalKelembapan = 0;
+                        let count = 0;
+
+                        Object.keys(hariData).forEach(jam => {
+                            totalSuhu += hariData[jam].suhu;
+                            totalKelembapan += hariData[jam].kelembapan;
+                            count++;
+                        });
+
+                        let avgSuhu = (totalSuhu / count).toFixed(1);
+                        let avgKelembapan = (totalKelembapan / count).toFixed(1);
 
                         let row = `
-                    <tr>
-                        <td>${key}</td>
-                        <td>${item.suhu}</td>
-                        <td>${item.kelembapan}</td>
-                    </tr>
-                `;
+                        <tr>
+                            <td style="cursor:pointer;color:blue;" onclick="showDetail('${tanggal}')">${tanggal}</td>
+                            <td>${avgSuhu}</td>
+                            <td>${avgKelembapan}</td>
+                        </tr>
+                    `;
 
                         table.innerHTML += row;
                     });
                 });
         }
 
-        setInterval(ambilLive, 2000);     // realtime
-        setInterval(ambilHistory, 10000); // riwayat
+        // ================= DETAIL JAM =================
+        function showDetail(tanggal) {
+
+            let data = window.historyData[tanggal];
+            let table = document.getElementById("table");
+
+            table.innerHTML = `
+            <tr>
+                <td colspan="3">
+                    <button onclick="ambilHistory()">⬅ Kembali</button>
+                </td>
+            </tr>
+        `;
+
+            Object.keys(data).forEach(jam => {
+
+                let item = data[jam];
+
+                let row = `
+                <tr>
+                    <td>${jam}</td>
+                    <td>${item.suhu}</td>
+                    <td>${item.kelembapan}</td>
+                </tr>
+            `;
+
+                table.innerHTML += row;
+            });
+        }
+
+        // ================= LOOP =================
+        setInterval(ambilLive, 3000);
+        setInterval(ambilHistory, 10000);
+
         ambilLive();
         ambilHistory();
+
     </script>
 
 </body>
