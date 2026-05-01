@@ -122,10 +122,12 @@
 
         .online {
             background-color: #00ff88;
+            box-shadow: 0 0 10px #00ff88;
         }
 
         .offline {
             background-color: red;
+            box-shadow: 0 0 10px red;
         }
 
         .status-text {
@@ -329,6 +331,12 @@
         let dataKelembapan = [];
         let labelWaktu = [];
 
+        let lastUpdate = 0;
+        let timeoutOffline = 7000;
+
+        let lastSuhu = null;
+        let lastKelembapan = null;
+
         const ctx = document.getElementById("suhuChart").getContext("2d");
 
         // 🔥 gradient area
@@ -434,6 +442,14 @@
                 .then(data => {
 
                     if (!data) return;
+
+                    if (data.suhu !== lastSuhu || data.kelembapan !== lastKelembapan) {
+                        lastUpdate = Date.now(); // ✅ hanya update kalau data baru
+
+                        lastSuhu = data.suhu;
+                        lastKelembapan = data.kelembapan;
+                    }
+
 
                     document.getElementById("suhu").innerText = data.suhu;
                     document.getElementById("kelembapan").innerText = data.kelembapan + " %";
@@ -574,14 +590,14 @@
         }
 
         // STATUS FIREBASE
-        let isOnline = true;
-
         function updateStatus() {
             const dot = document.querySelector(".dot");
             const text = document.querySelector(".status-text");
             const desc = document.querySelector(".status-desc");
 
-            if (isOnline) {
+            let sekarang = Date.now();
+
+            if (sekarang - lastUpdate < timeoutOffline) {
                 dot.classList.add("online");
                 dot.classList.remove("offline");
                 text.innerHTML = "Online";
@@ -596,6 +612,7 @@
 
         // 🔥 PENTING: PANGGIL SEMUA
         setInterval(updateJam, 1000);
+        setInterval(updateStatus, 1000);
         updateJam();
         updateStatus();
 
