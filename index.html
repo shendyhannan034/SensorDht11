@@ -333,7 +333,8 @@
 
         let lastUpdate = 0;
         let timeoutOffline = 7000;
-
+        let isFirstLoad = true;
+        let lastData = "";
         let lastSuhu = null;
         let lastKelembapan = null;
 
@@ -443,13 +444,20 @@
 
                     if (!data) return;
 
-                    if (data.suhu !== lastSuhu || data.kelembapan !== lastKelembapan) {
-                        lastUpdate = Date.now(); // ✅ hanya update kalau data baru
+                    let dataString = JSON.stringify(data);
 
-                        lastSuhu = data.suhu;
-                        lastKelembapan = data.kelembapan;
+                    // 🔥 saat pertama load → jangan langsung dianggap online
+                    if (isFirstLoad) {
+                        lastData = dataString;
+                        isFirstLoad = false;
+                        return; // ⛔ STOP, jangan update status dulu
                     }
 
+                    // ✅ hanya update kalau data benar-benar berubah
+                    if (dataString !== lastData) {
+                        lastUpdate = Date.now();
+                        lastData = dataString;
+                    }
 
                     document.getElementById("suhu").innerText = data.suhu;
                     document.getElementById("kelembapan").innerText = data.kelembapan + " %";
